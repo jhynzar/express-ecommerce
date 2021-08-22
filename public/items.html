@@ -88,7 +88,7 @@
 
                             <div class="row m-4">
                                 <a href="#" class="btn btn-success btn-icon-split btn-sm ml-auto"
-                                data-toggle="modal" data-target="#createModal">
+                                data-toggle="modal" data-target="#createModal" onclick="populateCreateModal()">
                                     <span class="icon text-white-50">
                                         <i class="fas fa-plus"></i>
                                     </span>
@@ -152,29 +152,20 @@
                     <div class="mb-3">
                         <label class="form-label w-100">
                             Name:
-                            <input class="form-control" aria-describedby="emailHelp" value="Category1">
+                            <input class="form-control" placeholder="Item Name" name="name" value="">
                         </label>
                         <label class="form-label w-100">
                             Categories: <br>
-                            <label class="badge bg-success text-white">
-                                Category 1
-                                <input type="checkbox">
-                            </label>
-                            <label class="badge bg-success text-white">
-                                Category 1
-                                <input type="checkbox">
-                            </label>
-                            <label class="badge bg-success text-white">
-                                Category 1
-                                <input type="checkbox">
-                            </label>
+                            <div class="categories">
+                                <span class="badge text-danger"> No Available Categories. Item will still be added but will not be assigned a category</span>
+                            </div>
                         </label>
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Save</a>
+                    <button onclick="addItemButtonOnClick()" class="btn btn-success" type="button">Add</a>
                 </div>
             </div>
         </div>
