@@ -9,8 +9,11 @@ const initializeRoutes = require('./routes');
 const app = express();
 const PORT = 3000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false}));
+
 // Assign Database
-app.set('databaseConnection', databaseConnection);
+app.set('databaseConnectionPromise', databaseConnection.promise());
 
 // Routes
 initializeRoutes(app);
