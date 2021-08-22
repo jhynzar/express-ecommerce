@@ -4,7 +4,6 @@ $(document).ready(() => {
 
 /**
  * Populate Category Table
- * @returns {Array}
  */
 function populateTable() {
     $.ajax({
@@ -15,6 +14,29 @@ function populateTable() {
                 return;
             }
             processTableHTML(res);
+        }
+    });
+}
+
+/**
+ * Create Category
+ * @param {Object} category {
+ *  name: 'Category Name'
+ * }
+ */
+ function createCategory(category) {
+    $.ajax({
+        url: '/api/categories',
+        type: 'POST',
+        data: category,
+        dataType: 'json',
+        success: (res, status) => {
+            if (status === 'success') {
+                confirm('Added Succesfully');
+                window.location.reload();
+            }
+
+            console.log(res);
         }
     });
 }
@@ -63,3 +85,17 @@ function populateTable() {
 
 
 }
+
+// Listeners
+/**
+ * Add Category Button onclick Listener
+ */
+ function addCategoryButtonOnClick() {
+    let categoryName = document.querySelector('#createModal input[name=name]').value;
+
+    createCategory({
+        name: categoryName
+    });
+}
+
+
