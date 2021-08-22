@@ -1,5 +1,7 @@
 $(document).ready(() => {
     populateTable();
+
+    $('#itemsTable').on('click', 'a.view-button', tableViewModalButtonOnClick);
 });
 
 /**
@@ -36,6 +38,39 @@ $(document).ready(() => {
             processCreateModalCategoriesHTML(res);
         }
     });
+}
+
+/**
+ * Populate View Modal
+ * @param {Number} id
+ */
+ function populateViewModal(id) {
+    $.ajax({
+        url: `/api/items/${id}`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processViewModalHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+
+    $.ajax({
+        url: `/api/items/${id}/categories`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processViewModalCategoriesHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+
 }
 
 /**
@@ -127,6 +162,35 @@ function createItem(item) {
 }
 
 /**
+ * Process View Modal HTML
+ * @param {Object} item
+ */
+function processViewModalHTML(item) {
+    document.querySelector('#viewModal input[name=id]').value = item.id;
+    document.querySelector('#viewModal input[name=name]').value = item.name;
+}
+
+/**
+ * Process View Modal HTML
+ * @param {Object} categories
+ */
+function processViewModalCategoriesHTML(categories) {
+    if (categories.length === 0) {
+        return;
+    }
+
+    let categoriesMap = categories.map((category) => {
+        return `
+            <label class="badge bg-success text-white">
+                ${category.name}
+            </label>
+        `;
+    });
+
+    document.querySelector('#viewModal .categories').innerHTML = categoriesMap.join('');
+}
+
+/**
  * Process Create Modal Categories HTML
  * @param {Array} categories
  */
@@ -159,4 +223,12 @@ function processCreateModalCategoriesHTML(categories) {
         name: itemName,
         category_ids: categoryIds
     });
+}
+
+/**
+ * View Item Button onclick Listener
+ */
+ function tableViewModalButtonOnClick() {
+    let itemId = $(this).data('id');
+    populateViewModal(itemId);
 }
