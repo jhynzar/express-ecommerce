@@ -1,6 +1,13 @@
 $(document).ready(() => {
     populateTable();
+
+    // Add Event Listeners (Delegation)
+    $('#categoriesTable').on('click', 'a.view-button', tableViewModalButtonOnClick);
 });
+
+/**
+ * Requests
+ */
 
 /**
  * Populate Category Table
@@ -17,6 +24,26 @@ function populateTable() {
         }
     });
 }
+
+/**
+ * Populate View Modal
+ * @param {Number} id
+ */
+ function populateViewModal(id) {
+    $.ajax({
+        url: `/api/categories/${id}`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processViewModalHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+}
+
 
 /**
  * Create Category
@@ -41,6 +68,12 @@ function populateTable() {
     });
 }
 
+
+
+/**
+ * Processors
+ */
+
 /**
  * Process Table HTML
  * @param {Array} categories
@@ -55,7 +88,7 @@ function populateTable() {
                 <td>
                     <div>
                         <a class="view-button btn btn-success btn-icon-split btn-sm"
-                        data-toggle="modal" data-target="#viewModal">
+                        data-toggle="modal" data-target="#viewModal" data-id="${category.id}">
                             <span class="icon text-white-50">
                                 <i class="fas fa-eye"></i>
                             </span>
@@ -83,10 +116,21 @@ function populateTable() {
 
     document.querySelector('#categoriesTable').innerHTML = categoriesMap.join('');
 
-
 }
 
-// Listeners
+/**
+ * Process View Modal HTML
+ * @param {Array} category
+ */
+ function processViewModalHTML(category) {
+    document.querySelector('#viewModal input[name=id]').value = category.id;
+    document.querySelector('#viewModal input[name=name]').value = category.name;
+}
+
+/**
+ * Listeners
+*/
+
 /**
  * Add Category Button onclick Listener
  */
@@ -97,5 +141,14 @@ function populateTable() {
         name: categoryName
     });
 }
+
+/**
+ * View Category Button onclick Listener
+ */
+ function tableViewModalButtonOnClick() {
+    let categoryId = $(this).data('id');
+    populateViewModal(categoryId);
+}
+
 
 

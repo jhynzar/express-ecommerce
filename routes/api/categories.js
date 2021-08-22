@@ -48,7 +48,7 @@ router.get('/:id', (req, res) => {
             [ id ]
             )
             .then(([rows, fields]) => {
-                res.status(200).json(rows);
+                res.status(200).json(rows[0]);
             })
             .catch((err) => {
                 console.log(err);
