@@ -98,5 +98,30 @@ router.delete('/:id', (req, res) => {
     
 });
 
+// Get Items of Category Id (:id) List (/:id/items) GET
+router.get('/:id/items', (req, res) => {
+
+    const { id } = req.params;
+
+    req.app.get('databaseConnectionPromise')
+        .query(`
+            SELECT item.id, item.name 
+            FROM item INNER JOIN item_category on (item.id = item_category.item_id) 
+            WHERE 
+                item_category.category_id = ?
+                AND item.is_deleted = 0
+            `,
+            [ id ]
+            )
+            .then(([rows, fields]) => {
+                res.status(200).json(rows);
+            })
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            });
+
+});
+
 // Export
 module.exports = router;

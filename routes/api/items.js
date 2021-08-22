@@ -98,5 +98,88 @@ router.delete('/:id', (req, res) => {
     
 });
 
+// Get Categories of Item Id (:id) List; (/:id/categories) GET
+router.get('/:id/categories', (req, res) => {
+
+    const { id } = req.params;
+
+    req.app.get('databaseConnectionPromise')
+        .query(`
+            SELECT category.id, category.name 
+            FROM category INNER JOIN item_category on (category.id = item_category.category_id) 
+            WHERE 
+                item_category.item_id = ?
+                AND category.is_deleted = 0
+            `,
+            [ id ]
+            )
+            .then(([rows, fields]) => {
+                res.status(200).json(rows);
+            })
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            });
+
+});
+
+// Create Categories of Item Id (:item_id) (1:x , item:category); (/:item_id/categories) POST
+router.post('/:item_id/categories', (req, res) => {
+    
+    const { item_id } = req.params;
+    const { category_ids } = req.body;
+
+    // Map Data for Query
+    const dataMap = category_ids.map((category_id) => {
+        return [ item_id, category_id ];
+    }).flat();
+
+    // Map Query for Multiple Inserts
+    const queryValueMap = category_ids.map(() => '(?, ?)').join(', ');
+    const query = `INSERT INTO item_category (item_id, category_id) VALUES ${queryValueMap}`;
+
+    req.app.get('databaseConnectionPromise')
+        .query(
+            query,
+            dataMap
+        )
+        .then(([rows, fields]) => {
+            res.status(200).json(rows);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+        });
+    
+});
+
+// Delete Categories of Item Id (:item_id) (1:x , item:category); (/:item_id/categories) POST
+router.delete('/:item_id/categories', (req, res) => {
+    
+    const { item_id } = req.params;
+    const { category_ids } = req.body;
+
+    // Map Data for Query
+    const dataMap = [ item_id, category_ids ].flat();
+
+    // Map Query for Multiple Inserts
+    const queryValueMap = category_ids.map(() => '?').join(', ');
+    const query = `DELETE FROM item_category WHERE item_id = ? AND category_id IN (${queryValueMap})`;
+
+    req.app.get('databaseConnectionPromise')
+        .query(
+            query,
+            dataMap
+        )
+        .then(([rows, fields]) => {
+            res.status(200).json(rows);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+        });
+    
+});
+
 // Export
 module.exports = router;
