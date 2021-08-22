@@ -265,20 +265,25 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label w-100">
+                            Id:
+                            <input disabled class="form-control" name="id" value="">
+                        </label>
+                        <label class="form-label w-100">
                             Name:
-                            <input disabled class="form-control" aria-describedby="emailHelp" value="Category1">
+                            <input disabled class="form-control" name="name" value="">
                         </label>
                         <label class="form-label w-100">
                             Categories: <br>
-                            <span class="badge bg-primary text-white">Category 1</span>
-                            <span class="badge bg-primary text-white">Category 2</span>
+                            <div class="categories">
+                                <span class="badge text-danger"> Item does not belong to any category</span>
+                            </div>
                         </label>
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-danger" href="login.html">Delete</a>
+                    <button onclick="deleteModalDeleteButtonOnClick()" class="btn btn-danger">Delete</a>
                 </div>
             </div>
         </div>

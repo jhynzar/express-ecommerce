@@ -2,6 +2,7 @@ $(document).ready(() => {
     populateTable();
 
     $('#itemsTable').on('click', 'a.view-button', tableViewModalButtonOnClick);
+    $('#itemsTable').on('click', 'a.delete-button', tableDeleteModalButtonOnClick);
 });
 
 /**
@@ -74,6 +75,39 @@ $(document).ready(() => {
 }
 
 /**
+ * Populate Delete Modal
+ * @param {Number} id
+ */
+ function populateDeleteModal(id) {
+    $.ajax({
+        url: `/api/items/${id}`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processDeleteModalHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+
+    $.ajax({
+        url: `/api/items/${id}/categories`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processDeleteModalCategoriesHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+
+}
+
+/**
  * Create Item
  * @param {Array} item {
  *  name: 'item 1',
@@ -101,6 +135,43 @@ function createItem(item) {
                     success: (res, status) => {
                         if (status === 'success') {
                             confirm('Item Created Successfully');
+                            window.location.reload();
+                        }
+                        
+                        console.log(res);
+                    }
+                });
+            }
+            console.log(res);
+        }
+    });
+}
+
+/**
+ * Delete Item
+ * @param {Array} item {
+ *  id: 1,
+ *  category_ids: [ 1, 2, 3]
+ * }
+ */
+ function deleteItem(item) {
+
+    // Create Item
+    $.ajax({
+        url: `/api/items/${item.id}`,
+        type: 'DELETE',
+        success: (res, status) => {
+            if (status === 'success') {
+                // Delete Item_Category
+                $.ajax({
+                    url: `/api/items/${item.id}/categories`,
+                    type: 'DELETE',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ category_ids: item.category_ids }),
+                    dataType: 'JSON',
+                    success: (res, status) => {
+                        if (status === 'success') {
+                            confirm('Item Deleted Successfully');
                             window.location.reload();
                         }
                         
@@ -191,6 +262,36 @@ function processViewModalCategoriesHTML(categories) {
 }
 
 /**
+ * Process Delete Modal HTML
+ * @param {Object} item
+ */
+ function processDeleteModalHTML(item) {
+    document.querySelector('#deleteModal input[name=id]').value = item.id;
+    document.querySelector('#deleteModal input[name=name]').value = item.name;
+}
+
+/**
+ * Process Delete Modal Categories HTML
+ * @param {Object} categories
+ */
+function processDeleteModalCategoriesHTML(categories) {
+    if (categories.length === 0) {
+        return;
+    }
+
+    let categoriesMap = categories.map((category) => {
+        return `
+            <label class="badge bg-primary text-white">
+                ${category.name}
+                <input hidden type="checkbox" name="category_ids" value="${category.id}">
+            </label>
+        `;
+    });
+
+    document.querySelector('#deleteModal .categories').innerHTML = categoriesMap.join('');
+}
+
+/**
  * Process Create Modal Categories HTML
  * @param {Array} categories
  */
@@ -231,4 +332,25 @@ function processCreateModalCategoriesHTML(categories) {
  function tableViewModalButtonOnClick() {
     let itemId = $(this).data('id');
     populateViewModal(itemId);
+}
+
+/**
+ * Delete Item Button onclick Listener
+ */
+ function tableDeleteModalButtonOnClick() {
+    let itemId = $(this).data('id');
+    populateDeleteModal(itemId);
+}
+
+/**
+ * Delete Category DELETE onclick Listener
+*/
+function deleteModalDeleteButtonOnClick() {
+    let itemId = document.querySelector('#deleteModal input[name=id]').value;
+    let categoryIds = $('#deleteModal input[name=category_ids]').map(function() { return $(this).val() } ).get();
+
+    deleteItem({
+        id: itemId,
+        category_ids: categoryIds
+    });
 }
