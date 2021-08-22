@@ -3,6 +3,7 @@ $(document).ready(() => {
 
     // Add Event Listeners (Delegation)
     $('#categoriesTable').on('click', 'a.view-button', tableViewModalButtonOnClick);
+    $('#categoriesTable').on('click', 'a.edit-button', tableEditModalButtonOnClick);
 });
 
 /**
@@ -44,6 +45,25 @@ function populateTable() {
     });
 }
 
+/**
+ * Populate Edit Modal
+ * @param {Number} id
+ */
+ function populateEditModal(id) {
+    $.ajax({
+        url: `/api/categories/${id}`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processEditModalHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+}
+
 
 /**
  * Create Category
@@ -60,6 +80,31 @@ function populateTable() {
         success: (res, status) => {
             if (status === 'success') {
                 confirm('Added Succesfully');
+                window.location.reload();
+            }
+
+            console.log(res);
+        }
+    });
+}
+
+/**
+ * Update Category
+ * @param {Object} category {
+ *  id: 1,
+ *  name: 'Category Name',
+ *  is_deleted: 0,
+ * }
+ */
+ function updateCategory(category) {
+    $.ajax({
+        url: `/api/categories/${category.id}`,
+        type: 'PUT',
+        data: category,
+        dataType: 'json',
+        success: (res, status) => {
+            if (status === 'success') {
+                confirm('Updated Successfully');
                 window.location.reload();
             }
 
@@ -94,8 +139,8 @@ function populateTable() {
                             </span>
                             <span class="text">View</span>
                         </a>
-                        <a href="#" class="btn btn-primary btn-icon-split btn-sm" 
-                        data-toggle="modal" data-target="#editModal">
+                        <a class="edit-button btn btn-primary btn-icon-split btn-sm" 
+                        data-toggle="modal" data-target="#editModal" data-id="${category.id}">
                             <span class="icon text-white-50">
                                 <i class="fas fa-edit"></i>
                             </span>
@@ -128,6 +173,15 @@ function populateTable() {
 }
 
 /**
+ * Process Edit Modal HTML
+ * @param {Array} category
+ */
+ function processEditModalHTML(category) {
+    document.querySelector('#editModal input[name=id]').value = category.id;
+    document.querySelector('#editModal input[name=name]').value = category.name;
+ }
+
+/**
  * Listeners
 */
 
@@ -148,6 +202,28 @@ function populateTable() {
  function tableViewModalButtonOnClick() {
     let categoryId = $(this).data('id');
     populateViewModal(categoryId);
+}
+
+/**
+ * Edit Category Button onclick Listener
+ */
+ function tableEditModalButtonOnClick() {
+    let categoryId = $(this).data('id');
+    populateEditModal(categoryId);
+}
+
+/**
+ * Edit Category SAVE onclick Listener
+*/
+function editModalSaveButtonOnClick() {
+    let categoryId = document.querySelector('#editModal input[name=id]').value;
+    let categoryName = document.querySelector('#editModal input[name=name]').value;
+
+    updateCategory({
+        id: categoryId,
+        name: categoryName,
+        is_deleted: 0,
+    });
 }
 
 

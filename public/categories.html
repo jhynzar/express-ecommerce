@@ -210,17 +210,23 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
+                    <div class="mb-2">
+                        <label class="form-label w-100">
+                            Id:
+                            <input disabled class="form-control" name="id" value="">
+                        </label>
+                    </div>
+                    <div class="mb-2">
                         <label class="form-label w-100">
                             Name:
-                            <input class="form-control" aria-describedby="emailHelp" value="Category1">
+                            <input class="form-control" name="name" value="">
                         </label>
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Save</a>
+                    <button onclick="editModalSaveButtonOnClick()" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>
