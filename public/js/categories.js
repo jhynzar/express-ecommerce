@@ -4,6 +4,7 @@ $(document).ready(() => {
     // Add Event Listeners (Delegation)
     $('#categoriesTable').on('click', 'a.view-button', tableViewModalButtonOnClick);
     $('#categoriesTable').on('click', 'a.edit-button', tableEditModalButtonOnClick);
+    $('#categoriesTable').on('click', 'a.delete-button', tableDeleteModalButtonOnClick);
 });
 
 /**
@@ -64,6 +65,25 @@ function populateTable() {
     });
 }
 
+/**
+ * Populate Delete Modal
+ * @param {Number} id
+ */
+ function populateDeleteModal(id) {
+    $.ajax({
+        url: `/api/categories/${id}`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processDeleteModalHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+}
+
 
 /**
  * Create Category
@@ -113,6 +133,27 @@ function populateTable() {
     });
 }
 
+/**
+ * Delete Category
+ * @param {Object} category {
+ *  id: 1,
+ * }
+ */
+ function deleteCategory(category) {
+    $.ajax({
+        url: `/api/categories/${category.id}`,
+        type: 'DELETE',
+        success: (res, status) => {
+            if (status === 'success') {
+                confirm('Deleted Successfully');
+                window.location.reload();
+            }
+
+            console.log(res);
+        }
+    });
+}
+
 
 
 /**
@@ -146,8 +187,8 @@ function populateTable() {
                             </span>
                             <span class="text">Edit</span>
                         </a>
-                        <a href="#" class="btn btn-danger btn-icon-split btn-sm"
-                        data-toggle="modal" data-target="#deleteModal">
+                        <a class="delete-button btn btn-danger btn-icon-split btn-sm"
+                        data-toggle="modal" data-target="#deleteModal" data-id="${category.id}">
                             <span class="icon text-white-50">
                                 <i class="fas fa-trash"></i>
                             </span>
@@ -179,6 +220,15 @@ function populateTable() {
  function processEditModalHTML(category) {
     document.querySelector('#editModal input[name=id]').value = category.id;
     document.querySelector('#editModal input[name=name]').value = category.name;
+ }
+
+ /**
+ * Process Delete Modal HTML
+ * @param {Array} category
+ */
+  function processDeleteModalHTML(category) {
+    document.querySelector('#deleteModal input[name=id]').value = category.id;
+    document.querySelector('#deleteModal input[name=name]').value = category.name;
  }
 
 /**
@@ -213,6 +263,14 @@ function populateTable() {
 }
 
 /**
+ * Edit Delete Button onclick Listener
+ */
+ function tableDeleteModalButtonOnClick() {
+    let categoryId = $(this).data('id');
+    populateDeleteModal(categoryId);
+}
+
+/**
  * Edit Category SAVE onclick Listener
 */
 function editModalSaveButtonOnClick() {
@@ -223,6 +281,17 @@ function editModalSaveButtonOnClick() {
         id: categoryId,
         name: categoryName,
         is_deleted: 0,
+    });
+}
+
+/**
+ * Delete Category DELETE onclick Listener
+*/
+function deleteModalDeleteButtonOnClick() {
+    let categoryId = document.querySelector('#deleteModal input[name=id]').value;
+
+    deleteCategory({
+        id: categoryId,
     });
 }
 
