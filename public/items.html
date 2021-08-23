@@ -214,7 +214,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-gradient-primary">
-                    <h5 class="modal-title text-white" id="editModalLabel">Edit Category</h5>
+                    <h5 class="modal-title text-white" id="editModalLabel">Edit Item</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -222,30 +222,25 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label w-100">
+                            Id:
+                            <input disabled class="form-control" name="id" value="">
+                        </label>
+                        <label class="form-label w-100">
                             Name:
-                            <input class="form-control" aria-describedby="emailHelp" value="Category1">
+                            <input class="form-control" name="name" value="">
                         </label>
                         <label class="form-label w-100">
                             Categories: <br>
-                            <label class="badge bg-success text-white">
-                                Category 1
-                                <input type="checkbox">
-                            </label>
-                            <label class="badge bg-success text-white">
-                                Category 1
-                                <input type="checkbox">
-                            </label>
-                            <label class="badge bg-success text-white">
-                                Category 1
-                                <input type="checkbox">
-                            </label>
+                            <div class="categories">
+                                <span class="badge text-danger"> Item does not belong to any category</span>
+                            </div>
                         </label>
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Save</a>
+                    <button onclick="editModalSaveButtonOnClick()" class="btn btn-primary" >Save</button>
                 </div>
             </div>
         </div>

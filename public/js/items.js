@@ -2,6 +2,7 @@ $(document).ready(() => {
     populateTable();
 
     $('#itemsTable').on('click', 'a.view-button', tableViewModalButtonOnClick);
+    $('#itemsTable').on('click', 'a.edit-button', tableEditModalButtonOnClick);
     $('#itemsTable').on('click', 'a.delete-button', tableDeleteModalButtonOnClick);
 });
 
@@ -65,6 +66,39 @@ $(document).ready(() => {
         success: (res, status) => {
             if (status === 'success') {
                 processViewModalCategoriesHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+
+}
+
+/**
+ * Populate Edit Modal
+ * @param {Number} id
+ */
+ function populateEditModal(id) {
+    $.ajax({
+        url: `/api/items/${id}`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processEditModalHTML(res);
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+
+    $.ajax({
+        url: '/api/categories',
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+                processEditModalCategoriesHTML(res, id);
                 return;
             }
 
@@ -146,6 +180,67 @@ function createItem(item) {
         }
     });
 }
+
+/**
+ * Update Item
+ * @param {Array} updateData {
+ *  item: {
+ *      id: 1,
+ *      name: ItemName,
+ *      is_deleted: 0
+ *  },
+ *  category: {
+ *      all: [1,2,3,4,5,6]
+ *      checked: [1,2,3],
+ *  }
+ * }
+ */
+ function updateItem(updateData) {
+
+    // Update Item
+    $.ajax({
+        url: `/api/items/${updateData.item.id}`,
+        type: 'PUT',
+        data: { name: updateData.item.name, is_deleted: updateData.item.is_deleted },
+        dataType: 'json',
+        success: (res, status) => {
+            if (status === 'success') {
+                // Delete All Categories
+                $.ajax({
+                    url: `/api/items/${updateData.item.id}/categories`,
+                    type: 'DELETE',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'JSON',
+                    data: JSON.stringify({ category_ids: updateData.category.all }),
+                    success: (res, status) => {
+                        if (status === 'success') {
+                            // Add New Categories
+                            $.ajax({
+                                url: `/api/items/${updateData.item.id}/categories`,
+                                type: 'POST',
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'JSON',
+                                data: JSON.stringify({ category_ids: updateData.category.checked }),
+                                success: (res, status) => {
+                                    if (status === 'success') {
+                                        confirm('Item Updated Successfully');
+                                        window.location.reload();
+                                    }
+                                    
+                                    console.log(res);
+                                }
+                            });
+                        }
+                        
+                        console.log(res);
+                    }
+                });
+            }
+            console.log(res);
+        }
+    });
+}
+
 
 /**
  * Delete Item
@@ -262,6 +357,54 @@ function processViewModalCategoriesHTML(categories) {
 }
 
 /**
+ * Process Edit Modal HTML
+ * @param {Object} item
+ */
+function processEditModalHTML(item) {
+    document.querySelector('#editModal input[name=id]').value = item.id;
+    document.querySelector('#editModal input[name=name]').value = item.name;
+}
+
+/**
+ * Process Edit Modal Categories HTML
+ * @param {Object} categoriesAll
+ */
+function processEditModalCategoriesHTML(categoriesAll, id) {
+
+    if (categoriesAll.length === 0) {
+        return;
+    }
+
+    // Get Categories of current item
+    $.ajax({
+        url: `/api/items/${id}/categories`,
+        type: 'GET',
+        success: (res, status) => {
+            if (status === 'success') {
+
+                const currentCategoryIds = res.map((category) => category.id);
+
+                // Populate HTML with checked categories
+                let categoriesMap = categoriesAll.map((category) => {
+                    return `
+                        <label class="badge bg-success text-white">
+                            ${category.name}
+                            <input type="checkbox" ${ (currentCategoryIds.includes(category.id) === true) ? 'checked' : '' } name="category_ids" value="${category.id}">
+                        </label>
+                    `;
+                });
+            
+                document.querySelector('#editModal .categories').innerHTML = categoriesMap.join('');
+                return;
+            }
+
+            console.log(res);
+        }
+    });
+
+}
+
+/**
  * Process Delete Modal HTML
  * @param {Object} item
  */
@@ -335,11 +478,55 @@ function processCreateModalCategoriesHTML(categories) {
 }
 
 /**
+ * Edit Category Button onclick Listener
+ */
+ function tableEditModalButtonOnClick() {
+    let itemId = $(this).data('id');
+    populateEditModal(itemId);
+}
+
+/**
  * Delete Item Button onclick Listener
  */
  function tableDeleteModalButtonOnClick() {
     let itemId = $(this).data('id');
     populateDeleteModal(itemId);
+}
+
+/**
+ * Edit Item SAVE onclick Listener
+*/
+function editModalSaveButtonOnClick() {
+    let categoryId = document.querySelector('#editModal input[name=id]').value;
+    let categoryName = document.querySelector('#editModal input[name=name]').value;
+
+    updateCategory({
+        id: categoryId,
+        name: categoryName,
+        is_deleted: 0,
+    });
+}
+
+/**
+ * Edit Item SAVE onclick Listener
+*/
+function editModalSaveButtonOnClick() {
+    let itemId = document.querySelector('#editModal input[name=id]').value;
+    let itemName = document.querySelector('#editModal input[name=name]').value;
+    let categoryIdsChecked = $('#editModal input[name=category_ids]:checked').map(function() { return $(this).val() } ).get();
+    let categoryIdsAll = $('#editModal input[name=category_ids]').map(function() { return $(this).val() } ).get();
+
+    updateItem({
+        item: {
+            id: itemId,
+            name: itemName,
+            is_deleted: 0,
+        },
+        category: {
+            all: categoryIdsAll,
+            checked: categoryIdsChecked
+        }
+    });
 }
 
 /**
