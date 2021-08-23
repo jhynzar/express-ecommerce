@@ -13,13 +13,14 @@ function populateCategorySelectDropdown() {
     $.ajax({
         url: `/api/categories`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processCategorySelectDropdownHTML(res);
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let categories = res.data;
+            processCategorySelectDropdownHTML(categories);
         }
     });
 }
@@ -33,12 +34,14 @@ function populateCategorySelectDropdown() {
         url: `/api/categories/${categoryId}/items`,
         type: 'GET',
         success: (res, status) => {
-            if (status === 'success') {
-                processTableHTML(res);
+
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let items = res.data;
+            processTableHTML(items);
         }
     });
 }
@@ -48,6 +51,11 @@ function populateCategorySelectDropdown() {
  * @param {Array} categories
  */
 function processCategorySelectDropdownHTML (categories) {
+
+    if (categories.length === 0) {
+        return;
+    }
+
     let categorySelectDropdownHTML = '<option selected disabled>Select Category</option>';
 
     categorySelectDropdownHTML += categories.map((category) => {
