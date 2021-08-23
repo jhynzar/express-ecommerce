@@ -19,10 +19,16 @@ function populateTable() {
         url: '/api/categories',
         type: 'GET',
         success: (res) => {
-            if (res.length === 0) {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
-            processTableHTML(res);
+
+            let categories = res.data;
+            if (categories.length === 0) {
+                return;
+            }
+            processTableHTML(categories);
         }
     });
 }
@@ -35,13 +41,14 @@ function populateTable() {
     $.ajax({
         url: `/api/categories/${id}`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processViewModalHTML(res);
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let category = res.data;
+            processViewModalHTML(category);
         }
     });
 }
@@ -54,13 +61,15 @@ function populateTable() {
     $.ajax({
         url: `/api/categories/${id}`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processEditModalHTML(res);
+        success: (res) => {
+
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let category = res.data;
+            processEditModalHTML(category);
         }
     });
 }
@@ -73,13 +82,16 @@ function populateTable() {
     $.ajax({
         url: `/api/categories/${id}`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processDeleteModalHTML(res);
+        success: (res) => {
+
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let category = res.data;
+            processDeleteModalHTML(category);
+
         }
     });
 }
@@ -98,12 +110,14 @@ function populateTable() {
         data: category,
         dataType: 'json',
         success: (res, status) => {
-            if (status === 'success') {
-                confirm('Added Succesfully');
-                window.location.reload();
+
+            if (res.code !== 200) {
+                confirm(res.msg);
+                return;
             }
 
-            console.log(res);
+            confirm('Added Succesfully');
+            window.location.reload();
         }
     });
 }
@@ -122,13 +136,16 @@ function populateTable() {
         type: 'PUT',
         data: category,
         dataType: 'json',
-        success: (res, status) => {
-            if (status === 'success') {
-                confirm('Updated Successfully');
-                window.location.reload();
+        success: (res) => {
+
+            if (res.code !== 200) {
+                confirm(res.msg);
+                return;
             }
 
-            console.log(res);
+            confirm('Updated Successfully');
+            window.location.reload();
+
         }
     });
 }
@@ -143,13 +160,16 @@ function populateTable() {
     $.ajax({
         url: `/api/categories/${category.id}`,
         type: 'DELETE',
-        success: (res, status) => {
-            if (status === 'success') {
-                confirm('Deleted Successfully');
-                window.location.reload();
+        success: (res) => {
+
+            if (res.code !== 200) {
+                confirm(res.msg);
+                return;
             }
 
-            console.log(res);
+            confirm('Deleted Successfully');
+            window.location.reload();
+
         }
     });
 }

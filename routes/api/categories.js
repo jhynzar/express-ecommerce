@@ -7,12 +7,18 @@ router.get('/', (req, res) => {
 
     req.app.get('databaseConnectionPromise')
         .query('SELECT id, name, is_deleted FROM category WHERE is_deleted = 0')
-            .then(([rows, fields]) => {
-                res.status(200).json(rows);
+            .then(([rows]) => {
+                res.status(200).json({
+                    code: 200,
+                    msg: "success",
+                    data: rows,
+                });
             })
             .catch((err) => {
-                console.log(err);
-                res.status(500).json(err);
+                res.status(500).json({
+                    code: err.code,
+                    msg: err.message,
+                });
             });
 
 });
@@ -27,12 +33,20 @@ router.post('/', (req, res) => {
             `INSERT INTO category (name) VALUES (?)`,
             [ name ]
             )
-            .then(([rows, fields]) => {
-                res.status(200).json(rows);
+            .then(([rows]) => {
+                res.status(200).json({
+                    code: 200,
+                    msg: "success",
+                    data: {
+                        id: rows.insertId,
+                    }
+                });
             })
             .catch((err) => {
-                console.log(err);
-                res.status(500).json(err);
+                res.status(500).json({
+                    code: err.code,
+                    msg: err.message,
+                });
             });
     
 });
@@ -47,12 +61,18 @@ router.get('/:id', (req, res) => {
             `SELECT id, name, is_deleted FROM category WHERE id = ? AND is_deleted = 0`,
             [ id ]
             )
-            .then(([rows, fields]) => {
-                res.status(200).json(rows[0]);
+            .then(([rows]) => {
+                res.status(200).json({
+                    code: 200,
+                    msg: "success",
+                    data: rows[0],
+                });
             })
             .catch((err) => {
-                console.log(err);
-                res.status(500).json(err);
+                res.status(500).json({
+                    code: err.code,
+                    msg: err.message,
+                });
             });
     
 });
@@ -68,12 +88,17 @@ router.put('/:id', (req, res) => {
             `UPDATE category SET name = ?, is_deleted = ? WHERE id = ?`,
             [ name, is_deleted, id ]
             )
-            .then(([rows, fields]) => {
-                res.status(200).json(rows);
+            .then(() => {
+                res.status(200).json({
+                    code: 200,
+                    msg: "success",
+                });
             })
             .catch((err) => {
-                console.log(err);
-                res.status(500).json(err);
+                res.status(500).json({
+                    code: err.code,
+                    msg: err.message,
+                });
             });
     
 });
@@ -88,12 +113,17 @@ router.delete('/:id', (req, res) => {
             `UPDATE category SET is_deleted = 1 WHERE id = ?`,
             [ id ]
             )
-            .then(([rows, fields]) => {
-                res.status(200).json(rows);
+            .then(() => {
+                res.status(200).json({
+                    code: 200,
+                    msg: "success",
+                });
             })
             .catch((err) => {
-                console.log(err);
-                res.status(500).json(err);
+                res.status(500).json({
+                    code: err.code,
+                    msg: err.message,
+                });
             });
     
 });
@@ -113,12 +143,18 @@ router.get('/:id/items', (req, res) => {
             `,
             [ id ]
             )
-            .then(([rows, fields]) => {
-                res.status(200).json(rows);
+            .then(([rows]) => {
+                res.status(200).json({
+                    code: 200,
+                    msg: "success",
+                    data: rows,
+                });
             })
             .catch((err) => {
-                console.log(err);
-                res.status(500).json(err);
+                res.status(500).json({
+                    code: err.code,
+                    msg: err.message,
+                });
             });
 
 });
