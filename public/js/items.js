@@ -18,10 +18,15 @@ $(document).ready(() => {
         url: '/api/items',
         type: 'GET',
         success: (res) => {
-            if (res.length === 0) {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
-            processTableHTML(res);
+            let items = res.data;
+            if (items.length === 0) {
+                return;
+            }
+            processTableHTML(items);
         }
     });
 }
@@ -34,10 +39,16 @@ $(document).ready(() => {
         url: '/api/categories',
         type: 'GET',
         success: (res) => {
-            if (res.length === 0) {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
-            processCreateModalCategoriesHTML(res);
+
+            let items = res.data;
+            if (items.length === 0) {
+                return;
+            }
+            processCreateModalCategoriesHTML(items);
         }
     });
 }
@@ -50,26 +61,28 @@ $(document).ready(() => {
     $.ajax({
         url: `/api/items/${id}`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processViewModalHTML(res);
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let item = res.data;
+            processViewModalHTML(item);
         }
     });
 
     $.ajax({
         url: `/api/items/${id}/categories`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processViewModalCategoriesHTML(res);
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let categories = res.data;
+            processViewModalCategoriesHTML(categories);
         }
     });
 
@@ -83,26 +96,28 @@ $(document).ready(() => {
     $.ajax({
         url: `/api/items/${id}`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processEditModalHTML(res);
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let item = res.data;
+            processEditModalHTML(item);
         }
     });
 
     $.ajax({
         url: '/api/categories',
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processEditModalCategoriesHTML(res, id);
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let categories = res.data;
+            processEditModalCategoriesHTML(categories, id);
         }
     });
 
@@ -116,26 +131,29 @@ $(document).ready(() => {
     $.ajax({
         url: `/api/items/${id}`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processDeleteModalHTML(res);
+        success: (res) => {
+
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let item = res.data;
+            processDeleteModalHTML(item);
         }
     });
 
     $.ajax({
         url: `/api/items/${id}/categories`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-                processDeleteModalCategoriesHTML(res);
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let categories = res.data;
+            processDeleteModalCategoriesHTML(categories);
         }
     });
 
@@ -156,33 +174,40 @@ function createItem(item) {
         type: 'POST',
         data: { name: item.name },
         dataType: 'json',
-        success: (res, status) => {
-            if (status === 'success') {
-                const id = res.insertId;
-
-                if (item.category_ids.length === 0) {
-                    confirm('Item Created Successfully, (No Categories)');
-                    window.location.reload();
-                }
-
-                // Create Item_Category
-                $.ajax({
-                    url: `/api/items/${id}/categories`,
-                    type: 'POST',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: 'JSON',
-                    data: JSON.stringify({ category_ids: item.category_ids }),
-                    success: (res, status) => {
-                        if (status === 'success') {
-                            confirm('Item Created Successfully');
-                            window.location.reload();
-                        }
-                        
-                        console.log(res);
-                    }
-                });
+        success: (res) => {
+            
+            if (res.code !== 200) {
+                confirm(res.msg);
+                return;
             }
-            console.log(res);
+
+            const id = res.data.id;
+
+            if (item.category_ids.length === 0) {
+                confirm('Item Created Successfully, (No Categories)');
+                window.location.reload();
+                return;
+            }
+
+            // Create Item_Category
+            $.ajax({
+                url: `/api/items/${id}/categories`,
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'JSON',
+                data: JSON.stringify({ category_ids: item.category_ids }),
+                success: (res) => {
+
+                    if (res.code !== 200) {
+                        confirm(res.msg);
+                        return;
+                    }
+        
+                    confirm('Item Created Successfully');
+                    window.location.reload();
+                    return;
+                }
+            });
         }
     });
 }
@@ -209,40 +234,54 @@ function createItem(item) {
         type: 'PUT',
         data: { name: updateData.item.name, is_deleted: updateData.item.is_deleted },
         dataType: 'json',
-        success: (res, status) => {
-            if (status === 'success') {
-                // Delete All Categories
-                $.ajax({
-                    url: `/api/items/${updateData.item.id}/categories`,
-                    type: 'DELETE',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: 'JSON',
-                    data: JSON.stringify({ category_ids: updateData.category.all }),
-                    success: (res, status) => {
-                        if (status === 'success') {
-                            // Add New Categories
-                            $.ajax({
-                                url: `/api/items/${updateData.item.id}/categories`,
-                                type: 'POST',
-                                contentType: "application/json; charset=utf-8",
-                                dataType: 'JSON',
-                                data: JSON.stringify({ category_ids: updateData.category.checked }),
-                                success: (res, status) => {
-                                    if (status === 'success') {
-                                        confirm('Item Updated Successfully');
-                                        window.location.reload();
-                                    }
-                                    
-                                    console.log(res);
-                                }
-                            });
-                        }
-                        
-                        console.log(res);
-                    }
-                });
+        success: (res) => {
+
+            if (res.code !== 200) {
+                confirm(res.msg);
+                return;
             }
-            console.log(res);
+
+            // Delete All Categories
+            $.ajax({
+                url: `/api/items/${updateData.item.id}/categories`,
+                type: 'DELETE',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'JSON',
+                data: JSON.stringify({ category_ids: updateData.category.all }),
+                success: (res) => {
+
+                    if (res.code !== 200) {
+                        confirm(res.msg);
+                        return;
+                    }
+
+                    // If there's no checked, skip adding new categories
+                    if (updateData.category.checked.length === 0) {
+                        confirm('Item Updated Successfully');
+                        window.location.reload();
+                        return;
+                    }
+
+                    // Add New Categories
+                    $.ajax({
+                        url: `/api/items/${updateData.item.id}/categories`,
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'JSON',
+                        data: JSON.stringify({ category_ids: updateData.category.checked }),
+                        success: (res) => {
+
+                            if (res.code !== 200) {
+                                confirm(res.msg);
+                                return;
+                            }
+
+                            confirm('Item Updated Successfully');
+                            window.location.reload();
+                        }
+                    });
+                }
+            });
         }
     });
 }
@@ -261,14 +300,16 @@ function createItem(item) {
     $.ajax({
         url: `/api/items/${item.id}`,
         type: 'DELETE',
-        success: (res, status) => {
-            if (status === 'success') {
-                confirm('Item Deleted Successfully');
-                window.location.reload();
+        success: (res) => {
+
+            if (res.code !== 200) {
+                confirm(res.msg);
+                return;
             }
             
-            console.log(res);
-        }
+            confirm('Item Deleted Successfully');
+            window.location.reload();
+    }
     });
 }
 
@@ -372,26 +413,26 @@ function processEditModalCategoriesHTML(categoriesAll, id) {
     $.ajax({
         url: `/api/items/${id}/categories`,
         type: 'GET',
-        success: (res, status) => {
-            if (status === 'success') {
-
-                const currentCategoryIds = res.map((category) => category.id);
-
-                // Populate HTML with checked categories
-                let categoriesMap = categoriesAll.map((category) => {
-                    return `
-                        <label class="badge bg-success text-white">
-                            ${category.name}
-                            <input type="checkbox" ${ (currentCategoryIds.includes(category.id) === true) ? 'checked' : '' } name="category_ids" value="${category.id}">
-                        </label>
-                    `;
-                });
-            
-                document.querySelector('#editModal .categories').innerHTML = categoriesMap.join('');
+        success: (res) => {
+            if (res.code !== 200) {
+                confirm(res.msg);
                 return;
             }
 
-            console.log(res);
+            let categories = res.data;
+            const currentCategoryIds = categories.map((category) => category.id);
+
+            // Populate HTML with checked categories
+            let categoriesMap = categoriesAll.map((category) => {
+                return `
+                    <label class="badge bg-success text-white">
+                        ${category.name}
+                        <input type="checkbox" ${ (currentCategoryIds.includes(category.id) === true) ? 'checked' : '' } name="category_ids" value="${category.id}">
+                    </label>
+                `;
+            });
+        
+            document.querySelector('#editModal .categories').innerHTML = categoriesMap.join('');
         }
     });
 
