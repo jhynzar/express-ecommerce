@@ -263,23 +263,10 @@ function createItem(item) {
         type: 'DELETE',
         success: (res, status) => {
             if (status === 'success') {
-                // Delete Item_Category
-                $.ajax({
-                    url: `/api/items/${item.id}/categories`,
-                    type: 'DELETE',
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify({ category_ids: item.category_ids }),
-                    dataType: 'JSON',
-                    success: (res, status) => {
-                        if (status === 'success') {
-                            confirm('Item Deleted Successfully');
-                            window.location.reload();
-                        }
-                        
-                        console.log(res);
-                    }
-                });
+                confirm('Item Deleted Successfully');
+                window.location.reload();
             }
+            
             console.log(res);
         }
     });
