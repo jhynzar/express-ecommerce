@@ -337,7 +337,7 @@ function processViewModalHTML(item) {
 }
 
 /**
- * Process View Modal HTML
+ * Process View Modal Categories HTML
  * @param {Object} categories
  */
 function processViewModalCategoriesHTML(categories) {
@@ -478,7 +478,7 @@ function processCreateModalCategoriesHTML(categories) {
 }
 
 /**
- * Edit Category Button onclick Listener
+ * Edit Item Button onclick Listener
  */
  function tableEditModalButtonOnClick() {
     let itemId = $(this).data('id');
@@ -530,7 +530,7 @@ function editModalSaveButtonOnClick() {
 }
 
 /**
- * Delete Category DELETE onclick Listener
+ * Delete Item DELETE onclick Listener
 */
 function deleteModalDeleteButtonOnClick() {
     let itemId = document.querySelector('#deleteModal input[name=id]').value;
