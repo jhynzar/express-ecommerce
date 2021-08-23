@@ -159,6 +159,12 @@ function createItem(item) {
         success: (res, status) => {
             if (status === 'success') {
                 const id = res.insertId;
+
+                if (item.category_ids.length === 0) {
+                    confirm('Item Created Successfully, (No Categories)');
+                    window.location.reload();
+                }
+
                 // Create Item_Category
                 $.ajax({
                     url: `/api/items/${id}/categories`,
