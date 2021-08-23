@@ -26,12 +26,12 @@ router.get('/', (req, res) => {
 // Create Item (/) POST
 router.post('/', (req, res) => {
     
-    const { name } = req.body;
+    const { name , qty } = req.body;
 
     req.app.get('databaseConnectionPromise')
         .query(
-            `INSERT INTO item (name) VALUES (?)`,
-            [ name ]
+            `INSERT INTO item (name, quantity) VALUES (?, ?)`,
+            [ name, qty ]
             )
             .then(([rows]) => {
                 res.status(200).json({
@@ -58,7 +58,7 @@ router.get('/:id', (req, res) => {
 
     req.app.get('databaseConnectionPromise')
         .query(
-            `SELECT id, name, is_deleted FROM item WHERE id = ? AND is_deleted = 0`,
+            `SELECT id, name, quantity, is_deleted FROM item WHERE id = ? AND is_deleted = 0`,
             [ id ]
             )
             .then(([rows]) => {
@@ -81,12 +81,12 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
     
     const { id } = req.params;
-    const { name, is_deleted } = req.body;
+    const { name, qty , is_deleted } = req.body;
 
     req.app.get('databaseConnectionPromise')
         .query(
-            `UPDATE item SET name = ?, is_deleted = ? WHERE id = ?`,
-            [ name, is_deleted, id ]
+            `UPDATE item SET name = ?, quantity = ?, is_deleted = ? WHERE id = ?`,
+            [ name, qty, is_deleted, id ]
             )
             .then(() => {
                 res.status(200).json({

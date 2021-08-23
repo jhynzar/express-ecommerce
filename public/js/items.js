@@ -163,6 +163,7 @@ $(document).ready(() => {
  * Create Item
  * @param {Array} item {
  *  name: 'item 1',
+ *  qty: 11,
  *  category_ids: [ 1, 2, 3]
  * }
  */
@@ -172,7 +173,7 @@ function createItem(item) {
     $.ajax({
         url: '/api/items',
         type: 'POST',
-        data: { name: item.name },
+        data: { name: item.name, qty: item.qty },
         dataType: 'json',
         success: (res) => {
             
@@ -218,6 +219,7 @@ function createItem(item) {
  *  item: {
  *      id: 1,
  *      name: ItemName,
+ *      qty: 11,
  *      is_deleted: 0
  *  },
  *  category: {
@@ -232,7 +234,11 @@ function createItem(item) {
     $.ajax({
         url: `/api/items/${updateData.item.id}`,
         type: 'PUT',
-        data: { name: updateData.item.name, is_deleted: updateData.item.is_deleted },
+        data: { 
+            name: updateData.item.name, 
+            qty: updateData.item.qty,
+            is_deleted: updateData.item.is_deleted 
+        },
         dataType: 'json',
         success: (res) => {
 
@@ -368,6 +374,7 @@ function createItem(item) {
 function processViewModalHTML(item) {
     document.querySelector('#viewModal input[name=id]').value = item.id;
     document.querySelector('#viewModal input[name=name]').value = item.name;
+    document.querySelector('#viewModal input[name=qty]').value = item.quantity;
 }
 
 /**
@@ -397,6 +404,7 @@ function processViewModalCategoriesHTML(categories) {
 function processEditModalHTML(item) {
     document.querySelector('#editModal input[name=id]').value = item.id;
     document.querySelector('#editModal input[name=name]').value = item.name;
+    document.querySelector('#editModal input[name=qty]').value = item.quantity;
 }
 
 /**
@@ -495,10 +503,12 @@ function processCreateModalCategoriesHTML(categories) {
  */
  function addItemButtonOnClick() {
     let itemName = document.querySelector('#createModal input[name=name]').value;
+    let itemQty = document.querySelector('#createModal input[name=qty]').value;
     let categoryIds = $('#createModal input[name=category_ids]:checked').map(function() { return $(this).val() } ).get();
 
     createItem({
         name: itemName,
+        qty: itemQty,
         category_ids: categoryIds
     });
 }
@@ -534,6 +544,7 @@ function editModalSaveButtonOnClick() {
     let categoryId = document.querySelector('#editModal input[name=id]').value;
     let categoryName = document.querySelector('#editModal input[name=name]').value;
 
+
     updateCategory({
         id: categoryId,
         name: categoryName,
@@ -547,6 +558,7 @@ function editModalSaveButtonOnClick() {
 function editModalSaveButtonOnClick() {
     let itemId = document.querySelector('#editModal input[name=id]').value;
     let itemName = document.querySelector('#editModal input[name=name]').value;
+    let itemQty = document.querySelector('#editModal input[name=qty]').value;
     let categoryIdsChecked = $('#editModal input[name=category_ids]:checked').map(function() { return $(this).val() } ).get();
     let categoryIdsAll = $('#editModal input[name=category_ids]').map(function() { return $(this).val() } ).get();
 
@@ -554,6 +566,7 @@ function editModalSaveButtonOnClick() {
         item: {
             id: itemId,
             name: itemName,
+            qty: itemQty,
             is_deleted: 0,
         },
         category: {
